@@ -1,0 +1,31 @@
+from dolfin import *
+
+#define mesh and function space
+mesh = Interval(100, -10, 10)
+V = FunctionSpace(mesh, 'Lagrange', 3)
+
+#define boundary
+def boundary(x, on_boundary):
+    return on_boundary
+
+#apply essential boundary conditions
+bc = DirichletBC(V, 0, boundary)
+
+#define functions
+u = TrialFunction(V)
+v = TestFunctions(V)
+
+x2 = Expression('x[0]*x[0]')
+
+#define problem
+a = (inner(grad(u), grad(v)) \
+     + x2*u*v)*dx
+m = u*v*dx
+
+#assemble stiffness matrix
+A = PETScMatrix()
+assemble(a, tensor=A)
+M = PETScMatrix()
+assemble(m, tensor=M)
+
+#create eigensolver
