@@ -19,6 +19,7 @@ from dolfin import *
 import time
 import math
 import matplotlib.pyplot as plit
+import matplotlib.animation as animation
 
 #define mesh and function space
 mesh = IntervalMesh(200, -10, 10)
@@ -72,6 +73,34 @@ plt = plot(u)
 time.sleep(2)   # 3 seconds pause
 
 print ' Maximum converged eigenvalue: ', eigensolver.get_number_converged()
+
+# First set up figure, axis, and plot element to be animated
+fig = plit.figure()
+ax = plit.axes(xlim=(-2,2), ylim=(-2,2))
+ax.set_xlabel('x [m]')
+ax.set_ylabel('Psi [-]')
+line, = ax.plot([], [],'k', lw=4)
+
+# initialization function: plot the background of each frame
+def init():
+    line.set_data([], [])
+    return line, 
+
+# animation function, sequentially called
+def animate(i):
+    x = X
+    y = u[i]
+    line.set_data(x,y)
+    return line,
+
+# call the animator. 
+# interval: delay between frames in ms
+# frames: number of function calls to animate
+anim = animation.FuncAnimation(fig, animate, init_func=init,
+                               frames=10, interval=2000, blit=False)
+
+# save the animation as mp4
+anim.save('harmosc_eigenfunc_animation.mp4', fps=30)
 
 i = 1
 #while i < eigensolver.get_number_converged():
